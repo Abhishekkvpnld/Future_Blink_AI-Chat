@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.post("/ask-ai", askAI);
 router.post("/save", saveChat);
-router.get("/", getChats);
+router.get("/all", getChats);
 
 export default router; 

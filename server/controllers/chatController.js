@@ -6,10 +6,16 @@ export const askAI = async (req, res) => {
   try {
     const { prompt } = req.body;
 
+    // ✅ Validate input
+    if (!prompt) {
+      return res.status(400).json({ message: "Prompt is required" });
+    }
+
+    // ✅ Call OpenRouter API
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: process.env.AI_MODEL_URL,
+        model: "openrouter/auto", // ✅ FIX
         messages: [
           {
             role: "user",
@@ -21,16 +27,24 @@ export const askAI = async (req, res) => {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
+          "HTTP-Referer": `${process.env.FRONTEND_URL}`,
+          "X-Title": "AI Flow App",
         },
-      }
+      },
     );
 
-    const answer = response.data.choices[0].message.content;
+    // ✅ Extract response
+    const answer =
+      response?.data?.choices?.[0]?.message?.content || "No response";
 
+    // ✅ Send back to frontend
     res.status(200).json({ answer });
   } catch (error) {
     console.error("AI Error:", error.response?.data || error.message);
-    res.status(500).json({ message: "AI request failed" });
+
+    res.status(500).json({
+      message: "AI request failed",
+    });
   }
 };
 
